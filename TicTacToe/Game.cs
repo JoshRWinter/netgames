@@ -87,6 +87,12 @@ namespace TicTacToe
             }
         }
 
+        // return X or O
+        internal int GetLetter()
+        {
+            return hosting ? X : O;
+        }
+
         internal void MyTurn(int index)
         {
             index = index - 1;
@@ -102,7 +108,7 @@ namespace TicTacToe
                 throw new TicTacToeException("<index> must be [0, 8]");
             }
 
-            Table[index] = X;
+            Table[index] = (byte)GetLetter();
 
             tcpOut.Write((byte)index);
 
@@ -116,7 +122,7 @@ namespace TicTacToe
             if (b < 0 || b > 8)
                 throw new TicTacToeException("got byte " + b + " from opponent. They are trying to hack you!!!!!");
 
-            Table[b] = O;
+            Table[b] = (byte)(GetLetter() == X ? O : X);
 
             IsMyTurn = !IsMyTurn;
         }
@@ -156,12 +162,6 @@ namespace TicTacToe
                 return true;
 
             return false;
-        }
-
-        // return X or O
-        private int GetLetter()
-        {
-            return hosting ? X : O;
         }
 
         private string GetString()

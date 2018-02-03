@@ -45,7 +45,7 @@ namespace TicTacToe
 
         private static bool Play(Game game)
         {
-            Draw(game.Table);
+            Draw(game);
 
             try
             {
@@ -57,7 +57,24 @@ namespace TicTacToe
                 }
                 else
                 {
+                    Console.WriteLine("It is " + game.OpponentName + "'s turn.");
                     game.OpponentTurn();
+                }
+
+                // check for win
+                if (game.CheckMeWin())
+                {
+                    Draw(game);
+                    Console.WriteLine("You Win! Congratulations!");
+                    game.Disconnect();
+                    return false;
+                }
+                else if (game.CheckOpponentWin())
+                {
+                    Draw(game);
+                    Console.WriteLine("You Lose! Congratulations!");
+                    game.Disconnect();
+                    return false;
                 }
             }
             catch (IOException)
@@ -74,8 +91,14 @@ namespace TicTacToe
             return true;
         }
 
-        private static void Draw(byte[] board)
+        private static void Draw(Game game)
         {
+            byte[] board = game.Table;
+
+            Console.Clear();
+            Console.WriteLine("You are playing " + game.OpponentName);
+            Console.WriteLine("You are " + GetChar(game.GetLetter()) + "\n");
+
             Console.WriteLine("-------------");
             Console.WriteLine($"| {GetChar(board[6])} | {GetChar(board[7])} | {GetChar(board[8])} |");
             Console.WriteLine("-------------");
@@ -83,6 +106,8 @@ namespace TicTacToe
             Console.WriteLine("-------------");
             Console.WriteLine($"| {GetChar(board[0])} | {GetChar(board[1])} | {GetChar(board[2])} |");
             Console.WriteLine("-------------");
+
+            Console.WriteLine();
         }
 
         private static char GetChar(int letter)
