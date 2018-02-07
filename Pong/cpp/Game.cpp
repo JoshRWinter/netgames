@@ -48,8 +48,9 @@ void Game::paintEvent(QPaintEvent*)
 	const QColor paddle_color(50, 50, 50);
 
 	// draw paddles
-	painter.fillRect(left.x, left.y, PADDLE_WIDTH, PADDLE_HEIGHT, paddle_color);
-	painter.fillRect(right.x, right.y, PADDLE_WIDTH, PADDLE_HEIGHT, paddle_color);
+	const int fraction = 3;
+	painter.fillRect(left.x + (PADDLE_WIDTH * (2.0 / 3.0)), left.y, PADDLE_WIDTH / fraction, PADDLE_HEIGHT, paddle_color);
+	painter.fillRect(right.x, right.y, PADDLE_WIDTH / fraction, PADDLE_HEIGHT, paddle_color);
 
 	// ball
 	painter.setBrush(QBrush(QColor(0, 0, 0)));

@@ -44,8 +44,8 @@
 #define PADDLE_LEFT_X PADDLE_WIDTH
 #define PADDLE_RIGHT_X (TABLE_WIDTH - PADDLE_WIDTH - PADDLE_WIDTH)
 
-#define BALL_SIZE 30
-#define BALL_START_SPEED 3
+#define BALL_SIZE 20
+#define BALL_START_SPEED 9
 struct Ball
 {
 	Ball()
@@ -94,6 +94,7 @@ public:
 
 private:
 	static void loop(PongServer*);
+	static float calculate_angle(int);
 	bool accept();
 	void reset(bool);
 	void step();

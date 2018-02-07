@@ -65,6 +65,7 @@ void PongServer::loop(PongServer *p)
 
 	// init some game entities
 	server.reset(true);
+	server.ball.y = (TABLE_HEIGHT / 2) - (BALL_SIZE / 2);
 	server.score[0] = 0;
 	server.score[1] = 0;
 	server.left.x = PADDLE_LEFT_X;
@@ -88,6 +89,11 @@ void PongServer::loop(PongServer *p)
 
 		server.wait(); // wait until time to do next loop
 	}
+}
+
+float PongServer::calculate_angle(int at)
+{
+	return (at - (PADDLE_HEIGHT / 2)) / 10.0f;
 }
 
 // accept 2 clients over tcp
@@ -142,11 +148,25 @@ void PongServer::step()
 	{
 		ball.xv = -ball.xv;
 		ball.x = left.x + PADDLE_WIDTH;
+		ball.yv = calculate_angle((ball.y + (BALL_SIZE / 2)) - left.y);
 	}
 	if(collide(right, ball))
 	{
 		ball.xv = -ball.xv;
 		ball.x = right.x - BALL_SIZE;
+		ball.yv = calculate_angle((ball.y + (BALL_SIZE / 2)) - right.y);
+	}
+
+	// bounce off the top and bottom of the screen
+	if(ball.y < 0)
+	{
+		ball.y = 0;
+		ball.yv = -ball.yv;
+	}
+	else if(ball.y + BALL_SIZE > TABLE_HEIGHT)
+	{
+		ball.y = TABLE_HEIGHT - BALL_SIZE;
+		ball.yv = -ball.yv;
 	}
 
 	// check for win condition
