@@ -1,5 +1,4 @@
 #include <functional>
-#include <iostream>
 
 #include <string.h>
 #include <unistd.h>
@@ -167,12 +166,12 @@ void PongServer::step()
 	if(collide(left, ball))
 	{
 		ball.xv = -ball.xv;
-		ball.x = left.x - BALL_SIZE;
+		ball.x = left.x + PADDLE_WIDTH;
 	}
 	if(collide(right, ball))
 	{
 		ball.xv = -ball.xv;
-		ball.x = left.x + PADDLE_WIDTH;
+		ball.x = right.x - BALL_SIZE;
 	}
 }
 
