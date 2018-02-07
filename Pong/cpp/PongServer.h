@@ -16,6 +16,9 @@
 3. ..
 4. int16 ball y position
 5. ..
+6. uint8 left player score
+7. uint8 right player score
+8. uint8 paused boolean
 */
 
 /* INCOMING DATAGRAM
@@ -24,10 +27,12 @@
 2. ..
 3. ..
 4. int16 paddle x pos
+5. ..
+6. uint8 request paused
 */
 
 #define PONG_PORT 28850
-#define OUT_DATAGRAM_SIZE 6
+#define OUT_DATAGRAM_SIZE 9
 #define IN_DATAGRAM_SIZE 6
 
 #define TABLE_WIDTH 800
@@ -40,6 +45,7 @@
 #define PADDLE_RIGHT_X (TABLE_WIDTH - PADDLE_WIDTH - PADDLE_WIDTH)
 
 #define BALL_SIZE 30
+#define BALL_START_SPEED 3
 struct Ball
 {
 	Ball()
@@ -89,24 +95,24 @@ public:
 private:
 	static void loop(PongServer*);
 	bool accept();
+	void reset(bool);
+	void step();
 	void recv();
 	void send();
-	void step();
 	void wait();
-	void compose(std::uint8_t*, const Paddle&, const Ball&);
-	void decompose(const std::uint8_t*, Paddle&, std::uint32_t&);
 	bool collide(const Paddle&, const Ball&);
 
 	net::udp_server udp;
 	net::tcp_server tcp;
 
-	Paddle left, right;
-	Ball ball;
 	std::chrono::time_point<std::chrono::high_resolution_clock> last;
 
 	// client info
+	Paddle left, right;
+	Ball ball;
 	std::uint32_t client_id[2];
 	net::udp_id udpid[2];
+	unsigned char score[2];
 
 	std::atomic<bool> running;
 	std::thread service;

@@ -42,7 +42,8 @@ void Game::paintEvent(QPaintEvent*)
 
 	Paddle left, right;
 	Ball ball;
-	pong.get(left, right, ball);
+	unsigned char scores[2];
+	pong.get(left, right, ball, scores);
 
 	const QColor paddle_color(50, 50, 50);
 
@@ -53,6 +54,17 @@ void Game::paintEvent(QPaintEvent*)
 	// ball
 	painter.setBrush(QBrush(QColor(0, 0, 0)));
 	painter.drawEllipse(ball.x, ball.y, BALL_SIZE, BALL_SIZE);
+
+	// dotted line
+	painter.setPen(Qt::DashLine);
+	painter.drawLine(TABLE_WIDTH / 2, 0, TABLE_WIDTH / 2, TABLE_HEIGHT);
+
+	// scores
+	const int textheight = 90;
+	const QFont font("sans serif", 40, 10);
+	painter.setFont(font);
+	painter.drawText(0, 10, (TABLE_WIDTH / 2) - 20, textheight, Qt::AlignRight, std::to_string(int(scores[0])).c_str());
+	painter.drawText((TABLE_WIDTH / 2) + 20, 10, TABLE_WIDTH / 2, textheight, Qt::AlignLeft, std::to_string(int(scores[1])).c_str());
 }
 
 void Game::mouseMoveEvent(QMouseEvent *event)

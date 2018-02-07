@@ -64,15 +64,11 @@ void PongServer::loop(PongServer *p)
 	PongServer &server = *p;
 
 	// init some game entities
+	server.reset(true);
+	server.score[0] = 0;
+	server.score[1] = 0;
 	server.left.x = PADDLE_LEFT_X;
-	server.left.y = (TABLE_HEIGHT / 2) - (PADDLE_HEIGHT / 2);
 	server.right.x = PADDLE_RIGHT_X;
-	server.right.y = server.left.y;
-
-	server.ball.x = server.left.x + PADDLE_WIDTH;
-	server.ball.y = server.left.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
-	server.ball.xv = 3;
-	server.ball.yv = 0;
 
 	server.last = std::chrono::high_resolution_clock::now();
 
@@ -114,6 +110,56 @@ bool PongServer::accept()
 	return true;
 }
 
+// bool is which side is "serving" the ball
+void PongServer::reset(bool hostserve)
+{
+	if(hostserve)
+	{
+		ball.x = left.x + PADDLE_WIDTH;
+		ball.xv = BALL_START_SPEED;
+		ball.y = left.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
+	}
+	else
+	{
+		ball.x = right.x - BALL_SIZE;
+		ball.xv = -BALL_START_SPEED;
+		ball.y = right.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
+	}
+
+	ball.yv = 0;
+}
+
+void PongServer::step()
+{
+	// update ball pos
+	ball.x += ball.xv;
+	ball.y += ball.yv;
+
+	// check for paddle collision
+	if(collide(left, ball))
+	{
+		ball.xv = -ball.xv;
+		ball.x = left.x + PADDLE_WIDTH;
+	}
+	if(collide(right, ball))
+	{
+		ball.xv = -ball.xv;
+		ball.x = right.x - BALL_SIZE;
+	}
+
+	// check for win condition
+	if(ball.x + BALL_SIZE > TABLE_WIDTH + 250)
+	{
+		++score[0];
+		reset(true);
+	}
+	else if(ball.x < -250)
+	{
+		++score[1];
+		reset(false);
+	}
+}
+
 void PongServer::recv()
 {
 	unsigned char dgram[IN_DATAGRAM_SIZE];
@@ -121,11 +167,20 @@ void PongServer::recv()
 	while(udp.peek() >= IN_DATAGRAM_SIZE)
 	{
 		Paddle pdl;
-		std::uint32_t id;
 		net::udp_id uid;
 
 		udp.recv(dgram, IN_DATAGRAM_SIZE, uid);
-		decompose(dgram, pdl, id);
+
+		// decompose the datagram
+		std::uint32_t id;
+		std::int16_t paddle_y;
+		std::uint8_t request_pause;
+
+		memcpy(&id, dgram, sizeof(id));
+		memcpy(&paddle_y, dgram + 4, sizeof(paddle_y));
+		memcpy(&request_pause, dgram + 6, sizeof(request_pause));
+
+		pdl.y = paddle_y;
 
 		if(id == client_id[0])
 		{
@@ -151,27 +206,25 @@ void PongServer::send()
 		if(!udpid[i].initialized)
 			continue;
 
-		compose(dgram, i == 0 ? right : left, ball);
-		udp.send(dgram, OUT_DATAGRAM_SIZE, udpid[i]);
-	}
-}
+		const Paddle &paddle = i == 0 ? right : left;
 
-void PongServer::step()
-{
-	// update ball pos
-	ball.x += ball.xv;
-	ball.y += ball.yv;
+		// compose the datagram
+		const std::int16_t paddle_y = paddle.y;
+		const std::int16_t ball_x = ball.x;
+		const std::int16_t ball_y = ball.y;
+		const std::uint8_t left_score = score[0];
+		const std::uint8_t right_score = score[1];
+		const std::uint8_t paused = false;
 
-	// check for paddle collision
-	if(collide(left, ball))
-	{
-		ball.xv = -ball.xv;
-		ball.x = left.x + PADDLE_WIDTH;
-	}
-	if(collide(right, ball))
-	{
-		ball.xv = -ball.xv;
-		ball.x = right.x - BALL_SIZE;
+		memcpy(dgram, &paddle_y, sizeof(paddle_y));
+		memcpy(dgram + 2, &ball_x, sizeof(ball_x));
+		memcpy(dgram + 4, &ball_y, sizeof(ball_y));
+		memcpy(dgram + 6, &left_score, sizeof(left_score));
+		memcpy(dgram + 7, &right_score, sizeof(right_score));
+		memcpy(dgram + 8, &paused, sizeof(paused));
+
+		// send
+		udp.send(dgram, sizeof(dgram), udpid[i]);
 	}
 }
 
@@ -187,31 +240,6 @@ void PongServer::wait()
 	}while(diff.count() < 16666000);
 
 	last = current;
-}
-
-// encode a datagram
-void PongServer::compose(std::uint8_t *raw, const Paddle &paddle, const Ball &ball)
-{
-	const std::int16_t paddle_y = paddle.y;
-	const std::int16_t ball_x = ball.x;
-	const std::int16_t ball_y = ball.y;
-
-	memcpy(raw, &paddle_y, sizeof(paddle_y));
-	memcpy(raw + 2, &ball_x, sizeof(ball_x));
-	memcpy(raw + 4, &ball_y, sizeof(ball_y));
-}
-
-// decode a datagram
-void PongServer::decompose(const std::uint8_t *raw, Paddle &paddle, std::uint32_t &id)
-{
-	std::uint32_t cid;
-	std::int16_t paddle_y;
-
-	memcpy(&cid, raw, sizeof(cid));
-	memcpy(&paddle_y, raw + 4, sizeof(paddle_y));
-
-	id = cid;
-	paddle.y = paddle_y;
 }
 
 bool PongServer::collide(const Paddle &p, const Ball &b)
