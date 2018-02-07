@@ -50,12 +50,12 @@ void Pong::recv()
 
 	while(udp.peek() >= sizeof(dgram))
 	{
-		std::uint16_t paddle_y;
-		std::uint16_t ball_x;
-		std::uint16_t ball_y;
+		std::int16_t paddle_y;
+		std::int16_t ball_x;
+		std::int16_t ball_y;
 
 		udp.recv(dgram, sizeof(dgram));
-			memcpy(&paddle_y, dgram, sizeof(paddle_y));
+		memcpy(&paddle_y, dgram, sizeof(paddle_y));
 		memcpy(&ball_x, dgram + 2, sizeof(ball_x));
 		memcpy(&ball_y, dgram + 4, sizeof(ball_y));
 
@@ -69,7 +69,7 @@ void Pong::send()
 {
 	unsigned char dgram[IN_DATAGRAM_SIZE];
 
-	std::uint16_t paddle_y = (side == SIDE_LEFT ? left : right).y;
+	std::int16_t paddle_y = (side == SIDE_LEFT ? left : right).y;
 	memcpy(dgram, &id, sizeof(id));
 	memcpy(dgram + 4, &paddle_y, sizeof(paddle_y));
 

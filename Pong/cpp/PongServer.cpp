@@ -205,7 +205,7 @@ void PongServer::compose(std::uint8_t *raw, const Paddle &paddle, const Ball &ba
 void PongServer::decompose(const std::uint8_t *raw, Paddle &paddle, std::uint32_t &id)
 {
 	std::uint32_t cid;
-	std::uint16_t paddle_y;
+	std::int16_t paddle_y;
 
 	memcpy(&cid, raw, sizeof(cid));
 	memcpy(&paddle_y, raw + 4, sizeof(paddle_y));
