@@ -56,7 +56,7 @@ struct Ball
 	float xv, yv;
 };
 
-#define PADDLE_HEIGHT 200
+#define PADDLE_HEIGHT 180
 #define PADDLE_WIDTH 30
 struct Paddle
 {
