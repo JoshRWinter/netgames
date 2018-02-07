@@ -65,6 +65,14 @@ void Game::paintEvent(QPaintEvent*)
 	painter.setFont(font);
 	painter.drawText(0, 10, (TABLE_WIDTH / 2) - 20, textheight, Qt::AlignRight, std::to_string(int(scores[0])).c_str());
 	painter.drawText((TABLE_WIDTH / 2) + 20, 10, TABLE_WIDTH / 2, textheight, Qt::AlignLeft, std::to_string(int(scores[1])).c_str());
+
+	// pause screen
+	if(pong.paused())
+	{
+		painter.setBrush(QBrush(QColor(10, 10, 10, 100)));
+		painter.drawRect(0, 0, TABLE_WIDTH, TABLE_HEIGHT);
+		painter.drawText(0, 0, TABLE_WIDTH, TABLE_HEIGHT, Qt::AlignCenter, "PAUSED");
+	}
 }
 
 void Game::mouseMoveEvent(QMouseEvent *event)
@@ -72,3 +80,9 @@ void Game::mouseMoveEvent(QMouseEvent *event)
 	y = event->y();
 }
 
+void Game::keyPressEvent(QKeyEvent *event)
+{
+	const int key = event->key();
+	if(key == Qt::Key_Escape)
+		pong.request_pause();
+}

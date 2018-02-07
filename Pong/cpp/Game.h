@@ -16,6 +16,7 @@ private:
 	void step();
 	void paintEvent(QPaintEvent*);
 	void mouseMoveEvent(QMouseEvent*);
+	void keyPressEvent(QKeyEvent*);
 
 	QTimer *timer;
 	Pong &pong;

@@ -33,7 +33,7 @@
 
 #define PONG_PORT 28850
 #define OUT_DATAGRAM_SIZE 9
-#define IN_DATAGRAM_SIZE 6
+#define IN_DATAGRAM_SIZE 7
 
 #define TABLE_WIDTH 800
 #define TABLE_HEIGHT 600
@@ -113,10 +113,10 @@ private:
 	std::uint32_t client_id[2];
 	net::udp_id udpid[2];
 	unsigned char score[2];
+	bool pause_request[2];
 
 	std::atomic<bool> running;
 	std::thread service;
-
 };
 
 #endif // PONG_SERVER_H

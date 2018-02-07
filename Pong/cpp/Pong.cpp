@@ -10,6 +10,8 @@ Pong::Pong()
 	side = SIDE_LEFT;
 	left_score = 0;
 	right_score = 0;
+	userpause = false;
+	serverpause = false;
 }
 
 bool Pong::begin_connect(const std::string &ip)
@@ -47,6 +49,16 @@ void Pong::get(Paddle &l, Paddle &r, Ball &b, unsigned char *scores)
 	scores[1] = right_score;
 }
 
+void Pong::request_pause()
+{
+	userpause = !userpause;
+}
+
+bool Pong::paused() const
+{
+	return serverpause;
+}
+
 void Pong::recv()
 {
 	Paddle &p = side == SIDE_LEFT ? right : left;
@@ -75,6 +87,7 @@ void Pong::recv()
 		ball.y = ball_y;
 		left_score = l_score;
 		right_score = r_score;
+		serverpause = paused == 1;
 	}
 }
 
@@ -83,7 +96,7 @@ void Pong::send()
 	unsigned char dgram[IN_DATAGRAM_SIZE];
 
 	const std::int16_t paddle_y = (side == SIDE_LEFT ? left : right).y;
-	const std::uint8_t request_pause = false;
+	const std::uint8_t request_pause = userpause ? 1 : 0;
 
 	memcpy(dgram, &id, sizeof(id));
 	memcpy(dgram + 4, &paddle_y, sizeof(paddle_y));
@@ -91,3 +104,4 @@ void Pong::send()
 
 	udp.send(dgram, IN_DATAGRAM_SIZE);
 }
+

@@ -11,12 +11,15 @@ public:
 	bool connect();
 	void set_y(int);
 	void get(Paddle&, Paddle&, Ball&, unsigned char*);
+	void request_pause();
+	bool paused()const;
 	void recv();
 	void send();
 
 private:
 	Paddle left,right;
 	Ball ball;
+	bool userpause, serverpause;
 
 	std::uint8_t left_score, right_score;
 	std::uint32_t id;

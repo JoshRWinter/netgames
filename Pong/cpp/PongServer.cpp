@@ -71,6 +71,7 @@ void PongServer::loop(PongServer *p)
 	server.right.x = PADDLE_RIGHT_X;
 
 	server.last = std::chrono::high_resolution_clock::now();
+	server.pause_request[0] = server.pause_request[1] = false;
 
 	if(!server.accept()) // accept 2 clients
 		return;
@@ -80,7 +81,8 @@ void PongServer::loop(PongServer *p)
 	{
 		server.recv(); // receive data
 
-		server.step(); // process game
+		if(!server.pause_request[0] && !server.pause_request[1])
+			server.step(); // process game
 
 		server.send(); // send data
 
@@ -194,6 +196,14 @@ void PongServer::recv()
 			if(!udpid[1].initialized)
 				udpid[1] = uid;
 		}
+		else
+		{
+			continue;
+		}
+
+		// handle pausing
+		const int client_index = id == client_id[0] ? 0 : 1;
+		pause_request[client_index] = request_pause == 1;
 	}
 }
 
@@ -214,14 +224,14 @@ void PongServer::send()
 		const std::int16_t ball_y = ball.y;
 		const std::uint8_t left_score = score[0];
 		const std::uint8_t right_score = score[1];
-		const std::uint8_t paused = false;
+		const std::uint8_t pause = pause_request[0] || pause_request[1] ? 1 : 0;
 
 		memcpy(dgram, &paddle_y, sizeof(paddle_y));
 		memcpy(dgram + 2, &ball_x, sizeof(ball_x));
 		memcpy(dgram + 4, &ball_y, sizeof(ball_y));
 		memcpy(dgram + 6, &left_score, sizeof(left_score));
 		memcpy(dgram + 7, &right_score, sizeof(right_score));
-		memcpy(dgram + 8, &paused, sizeof(paused));
+		memcpy(dgram + 8, &pause, sizeof(pause));
 
 		// send
 		udp.send(dgram, sizeof(dgram), udpid[i]);
