@@ -7,6 +7,11 @@
 #include <vector>
 #include <chrono>
 
+#ifdef _WIN32
+#define _USE_MATH_DEFINES
+#endif // _WIN32
+#include <math.h>
+
 #include "network.h"
 
 /* OUTGOING DATAGRAM
@@ -45,15 +50,32 @@
 #define PADDLE_RIGHT_X (TABLE_WIDTH - PADDLE_WIDTH - PADDLE_WIDTH)
 
 #define BALL_SIZE 20
-#define BALL_START_SPEED 9
+#define BALL_START_SPEED 15.0f
+#define BALL_SPEEDUP 
 struct Ball
 {
 	Ball()
 		:x(0), y(0)
-		,xv(0), yv(0) {}
+		,xv(0), yv(0)
+		,angle(0), speed(BALL_START_SPEED) {}
+
+	void set_angle(float ang)
+	{
+		angle = ang;
+		xv = cos(angle) * speed;
+		yv = sin(angle) * speed;
+	}
+
+	void set_speed(float spd)
+	{
+		speed = spd;
+		set_angle(angle);
+	}
 
 	float x, y;
 	float xv, yv;
+	float angle;
+	float speed;
 };
 
 #define PADDLE_HEIGHT 180

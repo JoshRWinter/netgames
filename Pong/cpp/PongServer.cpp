@@ -1,7 +1,6 @@
 #include <functional>
 
 #include <string.h>
-#include <unistd.h>
 #include <time.h>
 
 #include "PongServer.h"
@@ -93,7 +92,7 @@ void PongServer::loop(PongServer *p)
 
 float PongServer::calculate_angle(int at)
 {
-	return (at - (PADDLE_HEIGHT / 2)) / 10.0f;
+	return (at - (PADDLE_HEIGHT / 2)) / 100.0;
 }
 
 // accept 2 clients over tcp
@@ -124,14 +123,16 @@ void PongServer::reset(bool hostserve)
 	if(hostserve)
 	{
 		ball.x = left.x + PADDLE_WIDTH;
-		ball.xv = BALL_START_SPEED;
 		ball.y = left.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
+		ball.speed = BALL_START_SPEED;
+		ball.set_angle(0);
 	}
 	else
 	{
 		ball.x = right.x - BALL_SIZE;
-		ball.xv = -BALL_START_SPEED;
 		ball.y = right.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
+		ball.speed = BALL_START_SPEED;
+		ball.set_angle(M_PI);
 	}
 
 	ball.yv = 0;
@@ -146,15 +147,14 @@ void PongServer::step()
 	// check for paddle collision
 	if(collide(left, ball))
 	{
-		ball.xv = -ball.xv;
 		ball.x = left.x + PADDLE_WIDTH;
-		ball.yv = calculate_angle((ball.y + (BALL_SIZE / 2)) - left.y);
+		ball.set_angle(calculate_angle((ball.y + (BALL_SIZE / 2)) - left.y));
 	}
 	if(collide(right, ball))
 	{
-		ball.xv = -ball.xv;
 		ball.x = right.x - BALL_SIZE;
-		ball.yv = calculate_angle((ball.y + (BALL_SIZE / 2)) - right.y);
+		ball.set_angle(calculate_angle((ball.y + (BALL_SIZE / 2)) - right.y));
+		ball.xv = -ball.xv;
 	}
 
 	// bounce off the top and bottom of the screen
