@@ -51,7 +51,7 @@
 
 #define BALL_SIZE 20
 #define BALL_START_SPEED 15.0f
-#define BALL_SPEEDUP 
+#define BALL_SPEEDUP
 struct Ball
 {
 	Ball()
@@ -104,6 +104,19 @@ private:
 	const std::string message;
 };
 
+struct Client
+{
+public:
+	Client():
+	cid(0), score(0), pause_request(false) {}
+
+	Paddle paddle;
+	std::uint32_t cid;
+	net::udp_id udpid;
+	unsigned char score;
+	bool pause_request;
+};
+
 class PongServer
 {
 public:
@@ -131,12 +144,8 @@ private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> last;
 
 	// client info
-	Paddle left, right;
+	Client left, right;
 	Ball ball;
-	std::uint32_t client_id[2];
-	net::udp_id udpid[2];
-	unsigned char score[2];
-	bool pause_request[2];
 
 	std::atomic<bool> running;
 	std::thread service;

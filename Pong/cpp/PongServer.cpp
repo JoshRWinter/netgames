@@ -65,13 +65,11 @@ void PongServer::loop(PongServer *p)
 	// init some game entities
 	server.reset(true);
 	server.ball.y = (TABLE_HEIGHT / 2) - (BALL_SIZE / 2);
-	server.score[0] = 0;
-	server.score[1] = 0;
-	server.left.x = PADDLE_LEFT_X;
-	server.right.x = PADDLE_RIGHT_X;
+	server.left.paddle.x = PADDLE_LEFT_X;
+	server.right.paddle.x = PADDLE_RIGHT_X;
 
 	server.last = std::chrono::high_resolution_clock::now();
-	server.pause_request[0] = server.pause_request[1] = false;
+	server.left.pause_request = server.right.pause_request = false;
 
 	if(!server.accept()) // accept 2 clients
 		return;
@@ -81,7 +79,7 @@ void PongServer::loop(PongServer *p)
 	{
 		server.recv(); // receive data
 
-		if(!server.pause_request[0] && !server.pause_request[1])
+		if(!server.left.pause_request && !server.right.pause_request)
 			server.step(); // process game
 
 		server.send(); // send data
@@ -100,6 +98,8 @@ bool PongServer::accept()
 {
 	for(int i = 0; i < 2; ++i)
 	{
+		Client &client = i == 0 ? left : right;
+
 		int sock = -1;
 		while(sock == -1 && running)
 			sock = tcp.accept();
@@ -108,9 +108,9 @@ bool PongServer::accept()
 		net::tcp stream = sock;
 
 		// send id
-		client_id[i] = rand() % 100000;
-		send_data(stream, &client_id[i], sizeof(client_id[i]));
-		uint8_t side = i + 1;
+		client.cid = rand() % 100000;
+		send_data(stream, &client.cid, sizeof(client.cid));
+		const uint8_t side = i + 1;
 		send_data(stream, &side, sizeof(side));
 	}
 
@@ -122,15 +122,15 @@ void PongServer::reset(bool hostserve)
 {
 	if(hostserve)
 	{
-		ball.x = left.x + PADDLE_WIDTH;
-		ball.y = left.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
+		ball.x = left.paddle.x + PADDLE_WIDTH;
+		ball.y = left.paddle.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
 		ball.speed = BALL_START_SPEED;
 		ball.set_angle(0);
 	}
 	else
 	{
-		ball.x = right.x - BALL_SIZE;
-		ball.y = right.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
+		ball.x = right.paddle.x - BALL_SIZE;
+		ball.y = right.paddle.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
 		ball.speed = BALL_START_SPEED;
 		ball.set_angle(M_PI);
 	}
@@ -145,15 +145,15 @@ void PongServer::step()
 	ball.y += ball.yv;
 
 	// check for paddle collision
-	if(collide(left, ball))
+	if(collide(left.paddle, ball))
 	{
-		ball.x = left.x + PADDLE_WIDTH;
-		ball.set_angle(calculate_angle((ball.y + (BALL_SIZE / 2)) - left.y));
+		ball.x = left.paddle.x + PADDLE_WIDTH;
+		ball.set_angle(calculate_angle((ball.y + (BALL_SIZE / 2)) - left.paddle.y));
 	}
-	if(collide(right, ball))
+	if(collide(right.paddle, ball))
 	{
-		ball.x = right.x - BALL_SIZE;
-		ball.set_angle(calculate_angle((ball.y + (BALL_SIZE / 2)) - right.y));
+		ball.x = right.paddle.x - BALL_SIZE;
+		ball.set_angle(calculate_angle((ball.y + (BALL_SIZE / 2)) - right.paddle.y));
 		ball.xv = -ball.xv;
 	}
 
@@ -172,12 +172,12 @@ void PongServer::step()
 	// check for win condition
 	if(ball.x + BALL_SIZE > TABLE_WIDTH + 250)
 	{
-		++score[0];
+		++left.score;
 		reset(true);
 	}
 	else if(ball.x < -250)
 	{
-		++score[1];
+		++right.score;
 		reset(false);
 	}
 }
@@ -204,26 +204,28 @@ void PongServer::recv()
 
 		pdl.y = paddle_y;
 
-		if(id == client_id[0])
+		if(id == left.cid)
 		{
-			left.y = pdl.y;
-			if(!udpid[0].initialized)
-				udpid[0] = uid;
+			if(!left.udpid.initialized)
+				left.udpid = uid;
+
+			left.paddle.y = pdl.y;
+
+			left.pause_request = request_pause == 1;
 		}
-		else if(id == client_id[1])
+		else if(id == right.cid)
 		{
-			right.y = pdl.y;
-			if(!udpid[1].initialized)
-				udpid[1] = uid;
+			if(!right.udpid.initialized)
+				right.udpid = uid;
+
+			right.paddle.y = pdl.y;
+
+			right.pause_request = request_pause == 1;
 		}
 		else
 		{
 			continue;
 		}
-
-		// handle pausing
-		const int client_index = id == client_id[0] ? 0 : 1;
-		pause_request[client_index] = request_pause == 1;
 	}
 }
 
@@ -233,18 +235,19 @@ void PongServer::send()
 
 	for(unsigned i = 0; i < 2; ++i)
 	{
-		if(!udpid[i].initialized)
-			continue;
+		const Client &client = i == 0 ? left : right;
+		const Paddle &paddle = i == 0 ? right.paddle : left.paddle;
 
-		const Paddle &paddle = i == 0 ? right : left;
+		if(!client.udpid.initialized)
+			continue;
 
 		// compose the datagram
 		const std::int16_t paddle_y = paddle.y;
 		const std::int16_t ball_x = ball.x;
 		const std::int16_t ball_y = ball.y;
-		const std::uint8_t left_score = score[0];
-		const std::uint8_t right_score = score[1];
-		const std::uint8_t pause = pause_request[0] || pause_request[1] ? 1 : 0;
+		const std::uint8_t left_score = client.score;
+		const std::uint8_t right_score = client.score;
+		const std::uint8_t pause = left.pause_request || right.pause_request ? 1 : 0;
 
 		memcpy(dgram, &paddle_y, sizeof(paddle_y));
 		memcpy(dgram + 2, &ball_x, sizeof(ball_x));
@@ -254,7 +257,7 @@ void PongServer::send()
 		memcpy(dgram + 8, &pause, sizeof(pause));
 
 		// send
-		udp.send(dgram, sizeof(dgram), udpid[i]);
+		udp.send(dgram, sizeof(dgram), client.udpid);
 	}
 }
 
