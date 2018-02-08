@@ -267,8 +267,8 @@ void PongServer::send()
 		const std::int16_t paddle_y = paddle.y;
 		const std::int16_t ball_x = ball.x;
 		const std::int16_t ball_y = ball.y;
-		const std::uint8_t left_score = client.score;
-		const std::uint8_t right_score = client.score;
+		const std::uint8_t left_score = left.score;
+		const std::uint8_t right_score = right.score;
 		const std::uint8_t pause = left.pause_request || right.pause_request ? 1 : 0;
 
 		memcpy(dgram, &paddle_y, sizeof(paddle_y));
