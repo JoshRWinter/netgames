@@ -68,11 +68,14 @@ void Game::paintEvent(QPaintEvent*)
 	painter.drawText((TABLE_WIDTH / 2) + 20, 10, TABLE_WIDTH / 2, textheight, Qt::AlignLeft, std::to_string(int(scores[1])).c_str());
 
 	// pause screen
-	if(pong.paused())
+	if(pong.paused() || !pong.ready())
 	{
-		painter.setBrush(QBrush(QColor(10, 10, 10, 100)));
+		const char *const msg = pong.paused() ? "PAUSED" : "WAITING FOR PLAYER 2";
+
+		painter.setBrush(QBrush(QColor(10, 10, 10, 120)));
 		painter.drawRect(0, 0, TABLE_WIDTH, TABLE_HEIGHT);
-		painter.drawText(0, 0, TABLE_WIDTH, TABLE_HEIGHT, Qt::AlignCenter, "PAUSED");
+		painter.setPen(QColor(255, 255, 255, 255));
+		painter.drawText(0, 0, TABLE_WIDTH, TABLE_HEIGHT, Qt::AlignCenter, msg);
 	}
 }
 

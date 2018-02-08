@@ -13,6 +13,7 @@ public:
 	void get(Paddle&, Paddle&, Ball&, unsigned char*);
 	void request_pause();
 	bool paused()const;
+	bool ready()const;
 	void recv();
 	void send();
 
@@ -20,6 +21,7 @@ private:
 	Paddle left,right;
 	Ball ball;
 	bool userpause, serverpause;
+	bool playing;
 
 	std::uint8_t left_score, right_score;
 	std::uint32_t id;
