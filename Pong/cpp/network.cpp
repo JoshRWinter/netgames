@@ -1,6 +1,4 @@
 #include "network.h"
-#include <iostream>
-#include <utility>
 
 #ifndef _WIN32
 #include <sys/socket.h>
@@ -591,14 +589,13 @@ bool net::udp_server::bind(unsigned short port){
 	memset(&hints,0,sizeof(addrinfo));
 	hints.ai_family=AF_UNSPEC;
 	hints.ai_socktype=SOCK_DGRAM;
-	hints.ai_flags=AI_PASSIVE;
 
 	// convert port to string
 	char port_string[20];
 	sprintf(port_string,"%hu",port);
 
 	// resolve hostname
-	if(0!=getaddrinfo(NULL,port_string,&hints,&ai)){
+	if(0!=getaddrinfo("::",port_string,&hints,&ai)){
 		this->close();
 		return false;
 	}
