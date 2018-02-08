@@ -14,6 +14,7 @@ public:
 	void request_pause();
 	bool paused()const;
 	bool ready()const;
+	bool timeout()const;
 	void recv();
 	void send();
 
@@ -22,6 +23,7 @@ private:
 	Ball ball;
 	bool userpause, serverpause;
 	bool playing;
+	int last_recv;
 
 	std::uint8_t left_score, right_score;
 	std::uint32_t id;

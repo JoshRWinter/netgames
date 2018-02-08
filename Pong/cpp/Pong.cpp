@@ -13,6 +13,7 @@ Pong::Pong()
 	userpause = false;
 	serverpause = false;
 	playing = false;
+	last_recv = 0;
 }
 
 bool Pong::begin_connect(const std::string &ip)
@@ -65,6 +66,14 @@ bool Pong::ready() const
 	return playing;
 }
 
+bool Pong::timeout() const
+{
+	if(last_recv == 0)
+		return false;
+
+	return time(NULL) - last_recv > PONG_TIMEOUT;
+}
+
 void Pong::recv()
 {
 	Paddle &p = side == SIDE_LEFT ? right : left;
@@ -74,6 +83,7 @@ void Pong::recv()
 	while(udp.peek() >= sizeof(dgram))
 	{
 		playing = true;
+		last_recv = time(NULL);
 
 		std::int16_t paddle_y;
 		std::int16_t ball_x;

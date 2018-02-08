@@ -1,6 +1,7 @@
 #include <QWidget>
 #include <QApplication>
 #include <QPainter>
+#include <QMessageBox>
 
 #include "Game.h"
 
@@ -29,6 +30,11 @@ Game::Game(Pong &p)
 void Game::step()
 {
 	pong.recv();
+	if(pong.timeout())
+	{
+		QMessageBox::critical(this, "Alert", "Match has ended");
+		QApplication::quit();
+	}
 	pong.send();
 
 	pong.set_y(y);

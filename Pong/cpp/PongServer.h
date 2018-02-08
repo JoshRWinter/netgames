@@ -39,6 +39,7 @@
 #define PONG_PORT 28850
 #define OUT_DATAGRAM_SIZE 9
 #define IN_DATAGRAM_SIZE 7
+#define PONG_TIMEOUT 2 // seconds
 
 #define TABLE_WIDTH 1000
 #define TABLE_HEIGHT 650
@@ -108,13 +109,14 @@ struct Client
 {
 public:
 	Client():
-	cid(0), score(0), pause_request(false) {}
+	cid(0), score(0), pause_request(false), last_recv(0) {}
 
 	Paddle paddle;
 	std::uint32_t cid;
 	net::udp_id udpid;
 	unsigned char score;
 	bool pause_request;
+	int last_recv;
 };
 
 class PongServer
@@ -131,6 +133,7 @@ private:
 	static void loop(PongServer*);
 	static float calculate_angle(int);
 	bool accept();
+	bool check_timeout()const;
 	void reset(bool);
 	void step();
 	void recv();

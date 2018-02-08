@@ -79,6 +79,9 @@ void PongServer::loop(PongServer *p)
 	{
 		server.recv(); // receive data
 
+		if(server.check_timeout()) // see if anyone has timed out
+			return;
+
 		if(!server.left.pause_request && !server.right.pause_request)
 			server.step(); // process game
 
@@ -115,6 +118,21 @@ bool PongServer::accept()
 	}
 
 	return true;
+}
+
+bool PongServer::check_timeout() const
+{
+	if(left.last_recv == 0 || right.last_recv == 0)
+		return false;
+
+	const int current = time(NULL);
+
+	if(current - left.last_recv > PONG_TIMEOUT)
+		return true;
+	else if(current - right.last_recv > PONG_TIMEOUT)
+		return true;
+
+	return false;
 }
 
 // bool is which side is "serving" the ball
@@ -209,6 +227,8 @@ void PongServer::recv()
 			if(!left.udpid.initialized)
 				left.udpid = uid;
 
+			left.last_recv = time(NULL);
+
 			left.paddle.y = pdl.y;
 
 			left.pause_request = request_pause == 1;
@@ -217,6 +237,8 @@ void PongServer::recv()
 		{
 			if(!right.udpid.initialized)
 				right.udpid = uid;
+
+			right.last_recv = time(NULL);
 
 			right.paddle.y = pdl.y;
 
