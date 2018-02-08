@@ -1,4 +1,5 @@
 #include <memory>
+#include <exception>
 
 #include <time.h>
 #include <stdlib.h>
@@ -14,12 +15,24 @@ int run(int, char**);
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, INT)
 {
-	return run(0, NULL);
+	try
+	{
+		return run(0, NULL);
+	}catch(const std::runtime_error&)
+	{
+		return 1;
+	}
 }
 #else
 int main(int argc, char **argv)
 {
-	return run(argc, argv);
+	try
+	{
+		return run(argc, argv);
+	}catch(const std::runtime_error&)
+	{
+		return 1;
+	}
 }
 #endif // _WIN32
 
