@@ -2,6 +2,7 @@
 #define NETWORK_H
 
 #include <string>
+#include <string.h>
 #ifdef _WIN32
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
@@ -70,7 +71,9 @@ private:
 
 // udp
 struct udp_id{
-	udp_id():initialized(false),len(sizeof(sockaddr_storage)){}
+	udp_id():initialized(false),len(sizeof(sockaddr_storage)){
+		memset(&storage, 0, sizeof(storage));
+	}
 
 	bool initialized;
 	sockaddr_storage storage;

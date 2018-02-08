@@ -752,7 +752,6 @@ bool net::udp::target(const std::string &address,unsigned short port){
 	memset(&hints,0,sizeof(addrinfo));
 	hints.ai_family=AF_UNSPEC;
 	hints.ai_socktype=SOCK_DGRAM;
-	hints.ai_protocol=0;
 
 	// convert port to string
 	char port_string[20];
