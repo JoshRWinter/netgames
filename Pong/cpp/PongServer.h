@@ -35,8 +35,8 @@
 #define OUT_DATAGRAM_SIZE 9
 #define IN_DATAGRAM_SIZE 7
 
-#define TABLE_WIDTH 800
-#define TABLE_HEIGHT 600
+#define TABLE_WIDTH 1000
+#define TABLE_HEIGHT 650
 
 #define SIDE_LEFT 1
 #define SIDE_RIGHT 2
