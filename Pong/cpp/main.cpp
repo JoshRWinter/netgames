@@ -9,7 +9,21 @@
 #include "Dialog.h"
 #include "Game.h"
 
+int run(int, char**);
+
+#ifdef _WIN32
+int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, INT)
+{
+	return run(0, NULL);
+}
+#else
 int main(int argc, char **argv)
+{
+	return run(argc, argv);
+}
+#endif // _WIN32
+
+int run(int argc, char **argv)
 {
 	srand(time(NULL));
 	QApplication app(argc, argv);
