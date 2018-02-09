@@ -285,6 +285,8 @@ void PongServer::send()
 		const std::int16_t paddle_y = paddle.y;
 		const std::int16_t ball_x = ball.x;
 		const std::int16_t ball_y = ball.y;
+		const std::int16_t ball_xv = game_timer > 0 ? 0 : ball.xv;
+		const std::int16_t ball_yv = game_timer > 0 ? 0 : ball.yv;
 		const std::uint8_t left_score = left.score;
 		const std::uint8_t right_score = right.score;
 		const std::uint8_t pause = left.pause_request || right.pause_request ? 1 : 0;
@@ -292,9 +294,11 @@ void PongServer::send()
 		memcpy(dgram, &paddle_y, sizeof(paddle_y));
 		memcpy(dgram + 2, &ball_x, sizeof(ball_x));
 		memcpy(dgram + 4, &ball_y, sizeof(ball_y));
-		memcpy(dgram + 6, &left_score, sizeof(left_score));
-		memcpy(dgram + 7, &right_score, sizeof(right_score));
-		memcpy(dgram + 8, &pause, sizeof(pause));
+		memcpy(dgram + 6, &ball_xv, sizeof(ball_xv));
+		memcpy(dgram + 8, &ball_yv, sizeof(ball_yv));
+		memcpy(dgram + 10, &left_score, sizeof(left_score));
+		memcpy(dgram + 11, &right_score, sizeof(right_score));
+		memcpy(dgram + 12, &pause, sizeof(pause));
 
 		// send
 		udp.send(dgram, sizeof(dgram), client.udpid);

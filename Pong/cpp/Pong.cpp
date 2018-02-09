@@ -1,5 +1,6 @@
 #include <time.h>
 #include <string.h>
+#include <iostream>
 
 #include "Pong.h"
 
@@ -80,14 +81,20 @@ void Pong::recv()
 
 	unsigned char dgram[OUT_DATAGRAM_SIZE];
 
+	bool got_one = false;
+
 	while(udp.peek() >= sizeof(dgram))
 	{
+		got_one = true;
+
 		playing = true;
 		last_recv = time(NULL);
 
 		std::int16_t paddle_y;
 		std::int16_t ball_x;
 		std::int16_t ball_y;
+		std::int16_t ball_xv;
+		std::int16_t ball_yv;
 		std::uint8_t l_score;
 		std::uint8_t r_score;
 		std::uint8_t paused;
@@ -96,16 +103,26 @@ void Pong::recv()
 		memcpy(&paddle_y, dgram, sizeof(paddle_y));
 		memcpy(&ball_x, dgram + 2, sizeof(ball_x));
 		memcpy(&ball_y, dgram + 4, sizeof(ball_y));
-		memcpy(&l_score, dgram + 6, sizeof(left_score));
-		memcpy(&r_score, dgram + 7, sizeof(right_score));
-		memcpy(&paused, dgram + 8, sizeof(paused));
+		memcpy(&ball_xv, dgram + 6,sizeof(ball_xv));
+		memcpy(&ball_yv, dgram + 8, sizeof(ball_yv));
+		memcpy(&l_score, dgram + 10, sizeof(left_score));
+		memcpy(&r_score, dgram + 11, sizeof(right_score));
+		memcpy(&paused, dgram + 12, sizeof(paused));
 
 		p.y = paddle_y;
 		ball.x = ball_x;
 		ball.y = ball_y;
+		ball.xv = ball_xv;
+		ball.yv = ball_yv;
 		left_score = l_score;
 		right_score = r_score;
 		serverpause = paused == 1;
+	}
+
+	if(!got_one)
+	{
+		ball.x += ball.xv;
+		ball.y += ball.yv;
 	}
 }
 

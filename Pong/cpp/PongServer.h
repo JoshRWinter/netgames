@@ -15,29 +15,33 @@
 #include "network.h"
 
 /* OUTGOING DATAGRAM
-0. int16 paddle y position
-1. ..
-2. int16 ball x position
-3. ..
-4. int16 ball y position
-5. ..
-6. uint8 left player score
-7. uint8 right player score
-8. uint8 paused boolean
+0 : int16 paddle y position
+1 : ..
+2 : int16 ball x position
+3 : ..
+4 : int16 ball y position
+5 : ..
+6 : int16 ball x velocity
+7 : ..
+8 : int16 ball y velocity
+9 : ..
+10: uint8 left player score
+11: uint8 right player score
+12: uint8 paused boolean
 */
 
 /* INCOMING DATAGRAM
-0. uint32 udp id
-1. ..
-2. ..
-3. ..
-4. int16 paddle x pos
-5. ..
-6. uint8 request paused
+0 : uint32 udp id
+1 : ..
+2 : ..
+3 : ..
+4 : int16 paddle x pos
+5 : ..
+6 : uint8 request paused
 */
 
 #define PONG_PORT 28850
-#define OUT_DATAGRAM_SIZE 9
+#define OUT_DATAGRAM_SIZE 13
 #define IN_DATAGRAM_SIZE 7
 #define PONG_TIMEOUT 2 // seconds
 
