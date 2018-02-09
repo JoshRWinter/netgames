@@ -41,8 +41,8 @@
 #define IN_DATAGRAM_SIZE 7
 #define PONG_TIMEOUT 2 // seconds
 
-#define TABLE_WIDTH 1000
-#define TABLE_HEIGHT 650
+#define TABLE_WIDTH 1100
+#define TABLE_HEIGHT 700
 
 #define SIDE_LEFT 1
 #define SIDE_RIGHT 2
@@ -51,8 +51,9 @@
 #define PADDLE_RIGHT_X (TABLE_WIDTH - PADDLE_WIDTH - PADDLE_WIDTH)
 
 #define BALL_SIZE 20
-#define BALL_START_SPEED 15.0f
-#define BALL_SPEEDUP
+#define BALL_START_SPEED 18.0f
+#define BALL_MAX_SPEED 28.0f
+#define BALL_SPEEDUP 0.4f
 struct Ball
 {
 	Ball()

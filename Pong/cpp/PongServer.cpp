@@ -177,11 +177,17 @@ void PongServer::step()
 	if(collide(left.paddle, ball))
 	{
 		ball.x = left.paddle.x + PADDLE_WIDTH;
+		ball.speed += BALL_SPEEDUP;
+		if(ball.speed > BALL_MAX_SPEED)
+			ball.speed = BALL_MAX_SPEED;
 		ball.set_angle(calculate_angle((ball.y + (BALL_SIZE / 2)) - left.paddle.y));
 	}
 	if(collide(right.paddle, ball))
 	{
 		ball.x = right.paddle.x - BALL_SIZE;
+		ball.speed += BALL_SPEEDUP;
+		if(ball.speed > BALL_MAX_SPEED)
+			ball.speed = BALL_MAX_SPEED;
 		ball.set_angle(calculate_angle((ball.y + (BALL_SIZE / 2)) - right.paddle.y));
 		ball.xv = -ball.xv;
 	}
@@ -200,12 +206,12 @@ void PongServer::step()
 
 	// check for win condition
 	const int OVERSHOOT = 350;
-	if(ball.x + BALL_SIZE > TABLE_WIDTH + OVERSHOOT)
+	if(ball.x > TABLE_WIDTH + OVERSHOOT)
 	{
 		++left.score;
 		reset(true);
 	}
-	else if(ball.x < -OVERSHOOT)
+	else if(ball.x + BALL_SIZE < -OVERSHOOT)
 	{
 		++right.score;
 		reset(false);
