@@ -51,7 +51,6 @@ dlg::Connecting::Connecting(Pong &p, const std::string &addr, bool listening)
 	}
 
 	const char *const message = listening ? "Listening..." : "Connecting...";
-	resize(400, 250);
 	setWindowTitle(message);
 	auto layout = new QVBoxLayout;
 	setLayout(layout);
