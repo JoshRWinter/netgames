@@ -142,20 +142,17 @@ void PongServer::reset(bool hostserve)
 {
 	if(hostserve)
 	{
-		ball.x = left.paddle.x + PADDLE_WIDTH;
-		ball.y = left.paddle.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
-		ball.speed = BALL_START_SPEED;
-		ball.set_angle(0);
-	}
-	else
-	{
-		ball.x = right.paddle.x - BALL_SIZE;
-		ball.y = right.paddle.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
 		ball.speed = BALL_START_SPEED;
 		ball.set_angle(M_PI);
 	}
+	else
+	{
+		ball.speed = BALL_START_SPEED;
+		ball.set_angle(0);
+	}
 
-	ball.yv = 0;
+	ball.x = (TABLE_WIDTH / 2) - (BALL_SIZE / 2);
+	ball.y = (TABLE_HEIGHT / 2) - (BALL_SIZE / 2);
 	game_timer = NORMAL_GAME_TIMER;
 }
 
@@ -164,8 +161,6 @@ void PongServer::step()
 	if(game_timer > 0)
 	{
 		--game_timer;
-		const Paddle &serve = ball.x < TABLE_WIDTH / 2 ? left.paddle : right.paddle;
-		ball.y = serve.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
 		return;
 	}
 
