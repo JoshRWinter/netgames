@@ -310,6 +310,7 @@ void PongServer::wait()
 	{
 		current = std::chrono::high_resolution_clock::now();
 		diff = current - last;
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}while(diff.count() < 16666000);
 
 	last = current;
