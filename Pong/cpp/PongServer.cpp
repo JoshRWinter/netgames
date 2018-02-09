@@ -63,13 +63,15 @@ void PongServer::loop(PongServer *p)
 	PongServer &server = *p;
 
 	// init some game entities
-	server.reset(true);
-	server.ball.y = (TABLE_HEIGHT / 2) - (BALL_SIZE / 2);
 	server.left.paddle.x = PADDLE_LEFT_X;
 	server.right.paddle.x = PADDLE_RIGHT_X;
 
+	server.reset(true);
+	server.game_timer = START_GAME_TIMER;
+
 	server.last = std::chrono::high_resolution_clock::now();
 	server.left.pause_request = server.right.pause_request = false;
+
 
 	if(!server.accept()) // accept 2 clients
 		return;
@@ -154,10 +156,19 @@ void PongServer::reset(bool hostserve)
 	}
 
 	ball.yv = 0;
+	game_timer = NORMAL_GAME_TIMER;
 }
 
 void PongServer::step()
 {
+	if(game_timer > 0)
+	{
+		--game_timer;
+		const Paddle &serve = ball.x < TABLE_WIDTH / 2 ? left.paddle : right.paddle;
+		ball.y = serve.y + (PADDLE_HEIGHT / 2) - (BALL_SIZE / 2);
+		return;
+	}
+
 	// update ball pos
 	ball.x += ball.xv;
 	ball.y += ball.yv;
@@ -188,12 +199,13 @@ void PongServer::step()
 	}
 
 	// check for win condition
-	if(ball.x + BALL_SIZE > TABLE_WIDTH + 250)
+	const int OVERSHOOT = 350;
+	if(ball.x + BALL_SIZE > TABLE_WIDTH + OVERSHOOT)
 	{
 		++left.score;
 		reset(true);
 	}
-	else if(ball.x < -250)
+	else if(ball.x < -OVERSHOOT)
 	{
 		++right.score;
 		reset(false);

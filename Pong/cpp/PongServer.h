@@ -119,6 +119,8 @@ public:
 	int last_recv;
 };
 
+#define NORMAL_GAME_TIMER 70
+#define START_GAME_TIMER 300
 class PongServer
 {
 public:
@@ -140,6 +142,7 @@ private:
 	void send();
 	void wait();
 	bool collide(const Paddle&, const Ball&);
+	int game_timer;
 
 	net::udp_server udp;
 	net::tcp_server tcp;
