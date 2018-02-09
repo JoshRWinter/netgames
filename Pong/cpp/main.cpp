@@ -1,5 +1,7 @@
 #include <memory>
 #include <exception>
+#include <thread>
+#include <chrono>
 
 #include <time.h>
 #include <stdlib.h>
@@ -12,6 +14,7 @@
 #include "Game.h"
 
 int run(int, char**);
+void wait(int);
 
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, INT)
@@ -48,8 +51,13 @@ int run(int argc, char **argv)
 	if(connectto.length() == 0) // maybe start the server if user wants to host a match
 	{
 		server.reset(new PongServer);
-		if(greeter.single_player())
+		wait(100); // give a lil time for the server to warm up
+
+		if(greeter.single_player()) // start the bot if necessary
+		{
 			bot.reset(new PongBot);
+			wait(300); // give the bot some time to warm up
+		}
 	}
 
 	Pong pong; // game backend
@@ -62,4 +70,9 @@ int run(int argc, char **argv)
 	game.show();
 
 	return app.exec();
+}
+
+void wait(int mills)
+{
+	std::this_thread::sleep_for(std::chrono::milliseconds(mills));
 }

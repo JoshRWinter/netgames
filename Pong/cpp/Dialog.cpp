@@ -40,14 +40,18 @@ dlg::Greeter::Greeter()
 			accept();
 	});
 
-	auto host_and_bot = [this]
+	QObject::connect(host, &QPushButton::clicked, [this]
 	{
 		connectto->clear();
 		accept();
-	};
+	});
 
-	QObject::connect(host, &QPushButton::clicked, host_and_bot);
-	QObject::connect(bot, &QPushButton::clicked, host_and_bot);
+	QObject::connect(bot, &QPushButton::clicked, [this]
+	{
+		connectto->clear();
+		splayer = true;
+		accept();
+	});
 
 	hbox->addWidget(new QLabel("Connect to:"));
 	hbox->addWidget(connectto);

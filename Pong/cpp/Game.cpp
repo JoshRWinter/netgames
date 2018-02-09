@@ -35,9 +35,10 @@ void Game::step()
 		QMessageBox::critical(this, "Alert", "Match has ended");
 		QApplication::quit();
 	}
-	pong.send();
 
 	pong.set_y(y);
+
+	pong.send();
 
 	repaint();
 }
