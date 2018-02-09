@@ -52,7 +52,7 @@
 
 #define BALL_SIZE 20
 #define BALL_START_SPEED 18.0f
-#define BALL_MAX_SPEED 28.0f
+#define BALL_MAX_SPEED 35.0f
 #define BALL_SPEEDUP 0.4f
 struct Ball
 {
