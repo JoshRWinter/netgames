@@ -15,9 +15,11 @@ namespace dlg
 	public:
 		Greeter();
 		std::string get()const;
+		bool single_player()const;
 
 	private:
 		QLineEdit *connectto;
+		bool splayer;
 	};
 
 	class Connecting : public QDialog

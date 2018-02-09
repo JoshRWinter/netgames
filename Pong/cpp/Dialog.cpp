@@ -8,8 +8,10 @@
 
 dlg::Greeter::Greeter()
 {
+	splayer = false;
+	setWindowTitle("Pong Qt by Josh Winter");
+
 	// layouts
-	auto form = new QFormLayout;
 	auto hbox = new QHBoxLayout;
 	auto vbox = new QVBoxLayout;
 	setLayout(vbox);
@@ -18,24 +20,52 @@ dlg::Greeter::Greeter()
 	connectto = new QLineEdit;
 
 	// buttons
-	auto connect = new QPushButton("Connect");
-	auto cancel = new QPushButton("Cancel");
+	auto connect = new QPushButton("Go");
+	connect->setMaximumWidth(40);
+	auto host = new QPushButton("Host Match");
+	auto bot = new QPushButton("Single Player");
+
+	// tool tip text
+	connectto->setToolTip("Address of a remote host");
+	connect->setToolTip("Connect to a host");
+	host->setToolTip("Listen for connections");
+	bot->setToolTip("Play against a bot");
 
 	// listeners
-	QObject::connect(connect, &QPushButton::clicked, this, &QDialog::accept);
-	QObject::connect(cancel, &QPushButton::clicked, this, &QDialog::reject);
+	QObject::connect(connect, &QPushButton::clicked, [this]
+	{
+		if(connectto->text().length() == 0)
+			QMessageBox::critical(this, "No Address", "You cannot leave the Address field blank.");
+		else
+			accept();
+	});
 
-	form->addRow("Connect To", connectto);
-	vbox->addLayout(form);
+	auto host_and_bot = [this]
+	{
+		connectto->clear();
+		accept();
+	};
 
+	QObject::connect(host, &QPushButton::clicked, host_and_bot);
+	QObject::connect(bot, &QPushButton::clicked, host_and_bot);
+
+	hbox->addWidget(new QLabel("Connect to:"));
+	hbox->addWidget(connectto);
 	hbox->addWidget(connect);
-	hbox->addWidget(cancel);
+
 	vbox->addLayout(hbox);
+	vbox->addWidget(host);
+	vbox->addWidget(bot);
 };
 
 std::string dlg::Greeter::get() const
 {
 	return connectto->text().toStdString();
+}
+
+bool dlg::Greeter::single_player() const
+{
+	return splayer;
 }
 
 dlg::Connecting::Connecting(Pong &p, const std::string &addr, bool listening)
