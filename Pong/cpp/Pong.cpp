@@ -40,7 +40,7 @@ bool Pong::connect()
 
 void Pong::set_y(int v)
 {
-	(side == SIDE_LEFT ? left : right).y = v - (PADDLE_HEIGHT / 2);
+	(side == SIDE_LEFT ? left : right).y = v;
 }
 
 void Pong::get(Paddle &l, Paddle &r, Ball &b, unsigned char *scores)

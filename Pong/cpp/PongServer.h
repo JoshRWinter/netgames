@@ -125,7 +125,7 @@ public:
 };
 
 #define NORMAL_GAME_TIMER 70
-#define START_GAME_TIMER 300
+#define START_GAME_TIMER 150
 class PongServer
 {
 public:

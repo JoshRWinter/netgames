@@ -2,10 +2,16 @@
 #include <thread>
 #include <chrono>
 
+#include <math.h>
+
 #include "PongBot.h"
 
 PongBot::PongBot()
-	:running(true)
+	:seed(time(NULL))
+	,target(0)
+	,speed(0)
+	,toleft(false)
+	,running(true)
 	,service(PongBot::loop, this)
 {}
 
@@ -48,10 +54,46 @@ void PongBot::loop(PongBot *p)
 		unsigned char score[2];
 		bot.pong.get(left, right, ball, score);
 
-		bot.pong.set_y(ball.y + (BALL_SIZE / 2));
+		bot.ai(left, ball);
 
 		bot.pong.send();
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
+}
+
+void PongBot::move(float *origin, int dest, int speed)
+{
+	if(*origin > dest)
+	{
+		(*origin) -= speed;
+		if(*origin < dest)
+			*origin = dest;
+	}
+	else if(*origin < dest)
+	{
+		(*origin) += speed;
+		if(*origin > dest)
+			*origin = dest;
+	}
+}
+
+void PongBot::ai(Paddle &paddle, const Ball &ball)
+{
+	const bool before = toleft;
+	toleft = ball.xv < 0;
+
+	if(!toleft)
+		return;
+
+	if(before != toleft)
+	{
+		// select a new target and speed
+		target = rand_r(&seed) % PADDLE_HEIGHT;
+		speed = 4 + (rand_r(&seed) % 10);
+	}
+
+	// move the paddle
+	move(&paddle.y, (ball.y + (BALL_SIZE / 2)) - target, speed);
+	pong.set_y(paddle.y);
 }

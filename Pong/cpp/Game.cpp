@@ -37,7 +37,7 @@ void Game::step()
 		QApplication::quit();
 	}
 
-	pong.set_y(y);
+	pong.set_y(y - (PADDLE_HEIGHT / 2));
 
 	pong.send();
 
