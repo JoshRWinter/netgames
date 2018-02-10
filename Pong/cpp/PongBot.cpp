@@ -6,8 +6,9 @@
 
 #include "PongBot.h"
 
-PongBot::PongBot()
+PongBot::PongBot(Difficulty d)
 	:seed(time(NULL))
+	,params(get_difficulty_params(d))
 	,target(0)
 	,speed(0)
 	,toleft(false)
@@ -19,6 +20,21 @@ PongBot::~PongBot()
 {
 	running = false;
 	service.join();
+}
+
+DifficultyParameters PongBot::get_difficulty_params(Difficulty diff)
+{
+	switch(diff)
+	{
+	case Difficulty::EASY:
+		return DifficultyParameters(2, 9);
+	case Difficulty::HARD:
+		return DifficultyParameters(4, 11);
+	case Difficulty::IMPOSSIBLE:
+		return DifficultyParameters(100, 1);
+	default:
+		throw std::runtime_error("no difficulty");
+	}
 }
 
 void PongBot::loop(PongBot *p)
@@ -89,8 +105,13 @@ void PongBot::ai(Paddle &paddle, const Ball &ball)
 	if(before != toleft)
 	{
 		// select a new target and speed
+#ifdef _WIN32
+		target = rand() % PADDLE_HEIGHT;
+		speed = params.min_speed + (rand() % params.speed_mod);
+#else
 		target = rand_r(&seed) % PADDLE_HEIGHT;
-		speed = 4 + (rand_r(&seed) % 10);
+		speed = params.min_speed + (rand_r(&seed) % params.speed_mod);
+#endif // _WIN32
 	}
 
 	// move the paddle

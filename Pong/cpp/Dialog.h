@@ -9,17 +9,17 @@
 
 namespace dlg
 {
-
 	class Greeter : public QDialog
 	{
 	public:
 		Greeter();
 		std::string get()const;
-		bool single_player()const;
+		Difficulty single_player()const;
 
 	private:
+
 		QLineEdit *connectto;
-		bool splayer;
+		Difficulty diff;
 	};
 
 	class Connecting : public QDialog
@@ -34,6 +34,16 @@ namespace dlg
 		Pong &pong;
 		const int begin;
 		const std::string &ip;
+	};
+
+	class AIDifficulty : public QDialog
+	{
+	public:
+		AIDifficulty(QWidget*);
+		Difficulty get()const;
+
+	public:
+		Difficulty diff;
 	};
 
 }

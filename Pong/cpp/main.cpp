@@ -53,9 +53,10 @@ int run(int argc, char **argv)
 		server.reset(new PongServer);
 		wait(100); // give a lil time for the server to warm up
 
-		if(greeter.single_player()) // start the bot if necessary
+		Difficulty diff;
+		if((diff = greeter.single_player()) != Difficulty::NONE) // start the bot if necessary
 		{
-			bot.reset(new PongBot);
+			bot.reset(new PongBot(diff));
 			wait(300); // give the bot some time to warm up
 		}
 	}

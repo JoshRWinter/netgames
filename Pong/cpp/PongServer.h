@@ -51,8 +51,13 @@
 #define SIDE_LEFT 1
 #define SIDE_RIGHT 2
 
-#define PADDLE_LEFT_X PADDLE_WIDTH
-#define PADDLE_RIGHT_X (TABLE_WIDTH - PADDLE_WIDTH - PADDLE_WIDTH)
+enum class Difficulty
+{
+	NONE = 0,
+	EASY = 1,
+	HARD = 2,
+	IMPOSSIBLE = 3
+};
 
 #define BALL_SIZE 20
 #define BALL_START_SPEED 18.0f
@@ -86,6 +91,8 @@ struct Ball
 
 #define PADDLE_HEIGHT 180
 #define PADDLE_WIDTH 30
+#define PADDLE_LEFT_X PADDLE_WIDTH
+#define PADDLE_RIGHT_X (TABLE_WIDTH - PADDLE_WIDTH - PADDLE_WIDTH)
 struct Paddle
 {
 	Paddle()
