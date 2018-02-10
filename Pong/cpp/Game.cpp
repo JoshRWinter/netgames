@@ -11,6 +11,7 @@ Game::Game(Pong &p)
 {
 	setWindowTitle("Pong Qt");
 	resize(TABLE_WIDTH, TABLE_HEIGHT);
+	setFixedSize(size());
 
 	// track the mouse
 	setMouseTracking(true);
@@ -22,7 +23,7 @@ Game::Game(Pong &p)
 
 	// background color
 	QPalette palette;
-	palette.setColor(backgroundRole(), QColor(100, 100, 100));
+	palette.setColor(backgroundRole(), QColor(70, 130, 180));
 	setPalette(palette);
 	setAutoFillBackground(true);
 }
@@ -47,25 +48,34 @@ void Game::step()
 void Game::paintEvent(QPaintEvent*)
 {
 	QPainter painter(this);
+	painter.setRenderHint(QPainter::Antialiasing);
 
 	Paddle left, right;
 	Ball ball;
 	unsigned char scores[2];
 	pong.get(left, right, ball, scores);
 
-	const QColor paddle_color(50, 50, 50);
+	const QColor paddle_color(220, 220, 220);
 
 	// draw paddles
-	const int fraction = 5;
-	painter.fillRect(left.x + (PADDLE_WIDTH * (4.0 / 5.0)), left.y, PADDLE_WIDTH / fraction, PADDLE_HEIGHT, paddle_color);
-	painter.fillRect(right.x, right.y, PADDLE_WIDTH / fraction, PADDLE_HEIGHT, paddle_color);
+	const float fraction = 5.0f;
+	QRect lpaddle = QRect(left.x + (PADDLE_WIDTH * ((fraction - 1) / fraction)), left.y, PADDLE_WIDTH / fraction, PADDLE_HEIGHT);
+	QRect rpaddle = QRect(right.x, right.y, PADDLE_WIDTH / fraction, PADDLE_HEIGHT);
+	painter.fillRect(lpaddle.x(), lpaddle.y(), lpaddle.width(), lpaddle.height(), paddle_color);
+	painter.fillRect(rpaddle.x(), rpaddle.y(), rpaddle.width(), rpaddle.height(), paddle_color);
+	painter.setBrush(QColor(paddle_color));
+	painter.setPen(Qt::NoPen);
+	painter.drawEllipse(lpaddle.x() - lpaddle.width(), lpaddle.y(), lpaddle.width() * 2, lpaddle.height());
+	painter.drawEllipse(rpaddle.x(), rpaddle.y(), rpaddle.width() * 2, rpaddle.height());
 
 	// ball
-	painter.setBrush(QBrush(QColor(0, 0, 0)));
+	painter.setBrush(QBrush(QColor(220, 220, 220)));
 	painter.drawEllipse(ball.x, ball.y, BALL_SIZE, BALL_SIZE);
 
 	// dotted line
-	painter.setPen(Qt::DashLine);
+	QPen pen(Qt::DashLine);
+	pen.setColor(QColor(220, 220, 220));
+	painter.setPen(pen);
 	painter.drawLine(TABLE_WIDTH / 2, 0, TABLE_WIDTH / 2, TABLE_HEIGHT);
 
 	// scores
