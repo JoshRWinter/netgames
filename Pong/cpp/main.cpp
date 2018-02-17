@@ -13,7 +13,7 @@
 #include "Dialog.h"
 #include "Game.h"
 
-int run(int, char**);
+int run(QApplication&);
 void wait(int);
 
 #ifdef _WIN32
@@ -25,9 +25,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, INT)
 int main(int argc, char **argv)
 {
 #endif // _WIN32
+
+	QApplication app(argc, argv);
+
 	try
 	{
-		return run(argc, argv);
+		return run(app);
 	}catch(const std::exception &e)
 	{
 		QMessageBox::critical(NULL, "Fatal Error", e.what());
@@ -35,10 +38,9 @@ int main(int argc, char **argv)
 	}
 }
 
-int run(int argc, char **argv)
+int run(QApplication &app)
 {
 	srand(time(NULL));
-	QApplication app(argc, argv);
 
 	std::unique_ptr<PongServer> server;
 	std::unique_ptr<PongBot> bot;

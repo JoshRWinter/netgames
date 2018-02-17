@@ -85,9 +85,8 @@ dlg::Connecting::Connecting(Pong &p, const std::string &addr, bool listening)
 {
 	if(!pong.begin_connect(ip))
 	{
-		QMessageBox::critical(this, "Error", ("Could not connect to \"" + ip + "\"").c_str());
 		reject();
-		throw std::runtime_error("invalid ip address");
+		throw std::runtime_error(("Could not connect to \"" + ip + "\"").c_str());
 	}
 
 	const char *const message = listening ? "Listening..." : "Connecting...";
