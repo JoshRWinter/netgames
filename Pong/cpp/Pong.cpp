@@ -140,3 +140,17 @@ void Pong::send()
 	udp.send(dgram, IN_DATAGRAM_SIZE);
 }
 
+// first to 5
+Win Pong::check_win() const
+{
+	const int WIN_SCORE = 5;
+
+	if((side == SIDE_LEFT && left_score == WIN_SCORE) || (side == SIDE_RIGHT && right_score == WIN_SCORE))
+		return Win::ME;
+
+	else if((side == SIDE_RIGHT && left_score == WIN_SCORE) || (side == SIDE_LEFT && right_score == WIN_SCORE))
+		return Win::OPPONENT;
+
+	else
+		return Win::NONE;
+}

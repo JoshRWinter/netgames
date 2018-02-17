@@ -32,10 +32,19 @@ void Game::step()
 {
 	pong.recv();
 
+	// check for timeout
 	if(pong.timeout())
 	{
 		QMessageBox::critical(this, "Alert", "Match has ended");
 		QApplication::quit();
+	}
+
+	// check for win
+	const Win winner = pong.check_win();
+	if(winner != Win::NONE)
+	{
+		QApplication::postEvent(this, new WinEvent(winner));
+		timer->stop();
 	}
 
 	pong.set_y(y - (PADDLE_HEIGHT / 2));
@@ -43,6 +52,26 @@ void Game::step()
 	pong.send();
 
 	repaint();
+}
+
+void Game::customEvent(QEvent *e)
+{
+	WinEvent *event = dynamic_cast<WinEvent*>(e);
+	if(event == NULL)
+		return;
+
+	switch(event->winner)
+	{
+		case Win::ME:
+			QMessageBox::information(this, "You Win", "Congratulations! You Win!");
+			break;
+		case Win::OPPONENT:
+			QMessageBox::information(this, "You Lose", "Congratulations! You Lose!");
+			break;
+		default: break;
+	}
+
+	QApplication::quit();
 }
 
 void Game::paintEvent(QPaintEvent*)

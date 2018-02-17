@@ -3,6 +3,13 @@
 
 #include "PongServer.h"
 
+enum class Win
+{
+	OPPONENT,
+	ME,
+	NONE
+};
+
 class Pong
 {
 public:
@@ -17,6 +24,7 @@ public:
 	bool timeout()const;
 	void recv();
 	void send();
+	Win check_win()const;
 
 private:
 	Paddle left,right;
